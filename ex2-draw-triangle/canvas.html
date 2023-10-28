@@ -1,0 +1,170 @@
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <div class="header-right">
+            <a href="index.html">Practice 1</a>
+            <a href="canvas.html">Practice 2</a>
+            <a href="point.html">Practice 3</a>
+            <a href="point2.html">Practice 4</a>
+        </div>
+      </div>
+    <canvas id="canvas" width="1280" height="720"></canvas>
+
+    <script>
+        const VERTEX_SHADER = `#version 300 es
+        // Below are 2 input attributes
+        // The values for these attributes will be provided
+        // by us in the javascript "world"
+
+        // vec2 is a vector with 2 values representing the
+        // vertex coordinates (x/y).
+        in vec2 a_position;
+
+        // vec3 is a vector with 3 values representing the
+        // vertex color (r/g/b).
+        in vec3 a_color;
+
+        // output color for this vertex,
+        // OpenGL will interpolate these values automatically
+        out vec3 color;
+
+        void main() {
+            // convert coord from [0,1] space to [0,2] space
+            vec2 zeroToTwo = a_position * 2.0;
+
+            // convert coord from [0,2] space to [-1,1]
+            vec2 glCoordSpace = zeroToTwo - 1.0;
+
+            // set the output in the global predefined gl_Position variable.
+            // Note a vertex has 4 values: x,y,z,w - we use 0,1 for z,w.
+            gl_Position = vec4(glCoordSpace, 0, 1);
+
+            // set the output color variable, just provide the user intput
+            color = a_color;
+        }
+        `;
+
+        const FRAG_SHADER = `#version 300 es
+        precision highp float;
+
+        // input color for this fragment, provided by OpenGL by
+        // interpolating the output color variable that is in the
+        // vertex shader.
+        in vec3 color;
+
+        // We should set this output param with the desired
+        // fragment color
+        out vec4 outColor;
+
+        void main() {
+            // just output the color we got, note we got vec3 (rgb)
+        // and outColor is vec4, so we use 1.0 for the alpha.
+            outColor = vec4(color, 1.0);
+        }
+        `;
+
+        var canvas = document.getElementById('canvas');
+        // get webgl2 context
+        var gl = canvas.getContext('webgl2');
+
+        // Create shader object of type "VERTEX"
+        const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+
+        // Load the shader source
+        gl.shaderSource(vertexShader, VERTEX_SHADER);
+
+        // Compile the shader
+        gl.compileShader(vertexShader);
+
+        // Check the compile status
+        var compiled = gl.getShaderParameter(vertexShader, gl.  COMPILE_STATUS);
+        if (!compiled) {
+        // Something went wrong during compilation; get the error
+        var lastError = gl.getShaderInfoLog(vertexShader);
+        throw new Error('Error compiling shader:' + lastError);
+        }
+
+        // Do the same for the fragment shader
+        const fragShader = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(fragShader, FRAG_SHADER);
+        gl.compileShader(fragShader);
+
+        // Check the compile status
+        compiled = gl.getShaderParameter(fragShader, gl.  COMPILE_STATUS);
+        if (!compiled) {
+        // Something went wrong during compilation; get the error
+        var lastError = gl.getShaderInfoLog(fragShader);
+        throw new Error('Error compiling shader:' + lastError);
+        }
+
+        // create program object
+        var program = gl.createProgram();
+
+        // attach it with the 2 shaders
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragShader);
+
+        // and link
+        gl.linkProgram(program);
+
+        // Check the link status
+        const linked = gl.getProgramParameter(program, gl.LINK_STATUS);
+        if (!linked) {
+        // something went wrong with the link
+        const lastError = gl.getProgramInfoLog(program);
+        throw new Error('Error linking gl program:', lastError);
+        }
+
+        // First we create a "buffer", which is just a chunk of memory **on the GPU**:
+        var vertexParamsBuffer = gl.createBuffer();
+        // Then we should "bind" it, binding in OpenGL is like making something "active"
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexParamsBuffer);
+
+        var verticesData = new Float32Array([
+        // coord      color
+            0.0, 0.0,  1.0, 0.0, 0.0, // 1st vertex
+            0.5, 1.0,  0.0, 1.0, 0.0, // 2nd vertex
+            1.0, 0.0,  0.0, 0.0, 1.0  // 3ed vertex
+        ]);
+
+        // First parameter is the "slot" onto which load the data
+        // Second parameter is the chunk of bytes
+        // Third parameter is a hint to OpenGL how this data used
+        gl.bufferData(gl.ARRAY_BUFFER, verticesData, gl.STATIC_DRAW);
+
+        // Gets the index of the a_position input attribute
+        var a_positionIdx = gl.getAttribLocation(program, 'a_position');
+
+        // Fact that we declared "in vec2 a_position" attribute
+        // in our vertex shader doesn't mean it is "active",
+        // we have to enable it specifically:
+        gl.enableVertexAttribArray(a_positionIdx);
+
+        // And now we tell OpenGL how to read data from the buffer
+        // CURRENTLY bound to the ARRAY_BUFFER "slot" into the
+        // vertex attribute a_position
+        gl.vertexAttribPointer(a_positionIdx, 2, gl.FLOAT, false, 20, 0);
+
+        // same for the color attribute
+        var a_colorIdx = gl.getAttribLocation(program, 'a_color');
+        gl.enableVertexAttribArray(a_colorIdx);
+        gl.vertexAttribPointer(a_colorIdx, 3, gl.FLOAT, false, 20, 8);
+
+        // First we set our program as the active program on the gpu
+        gl.useProgram(program);
+
+        // Call the draw method
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+    </script>
+</body>
+
+</html>

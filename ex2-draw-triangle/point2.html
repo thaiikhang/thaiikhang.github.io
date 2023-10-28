@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Example</title>
+    <link rel="stylesheet" href="style.css">
+    
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-right">
+            <a href="index.html">Practice 1</a>
+            <a href="canvas.html">Practice 2</a>
+            <a href="point.html">Practice 3</a>
+            <a href="point2.html">Practice 4</a>
+        </div>
+      </div>
+    <canvas id="my_canvas" width="400" height="400"></canvas>
+
+    <script>
+        var canvas = document.getElementById("my_canvas"); // Thay đổi "canvas" thành "my_canvas"
+        var gl = canvas.getContext('webgl');
+
+        var vertices = [
+            0.0, 0.5,
+            -0.5, -0.5,
+            0.5, -0.5
+        ];
+
+        var indices = [0, 1, 2];
+
+        
+        const pointVertices = new Float32Array([
+            0.0,
+            1.0, // Top point
+            -0.5,
+            -1.0, // Bottom-left point
+            0.5,
+            -1.0, // Bottom-right point
+          ]);
+        
+          const pointVertexBuffer = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, pointVertexBuffer);
+          gl.bufferData(gl.ARRAY_BUFFER, pointVertices, gl.STATIC_DRAW);
+        
+          // Vertex Shader
+          const vsSource = `
+                attribute vec2 aVertexPosition;
+                void main() {
+                    gl_Position = vec4(aVertexPosition, 0.0, 1.0);
+                    gl_PointSize = 100.0; 
+                }
+            `;
+        
+          // Fragment Shader
+          const fsSource = `
+                void main() {
+                    if (gl_PointCoord.x < 0.25) {
+                        gl_FragColor = vec4(0.0, 1.1, 1.0, 1.0); 
+                    } else {
+                        gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0); 
+                    }
+                }
+            `;
+        
+          const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+          gl.shaderSource(vertexShader, vsSource);
+          gl.compileShader(vertexShader);
+        
+          const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+          gl.shaderSource(fragmentShader, fsSource);
+          gl.compileShader(fragmentShader);
+        
+          const shaderProgram = gl.createProgram();
+          gl.attachShader(shaderProgram, vertexShader);
+          gl.attachShader(shaderProgram, fragmentShader);
+          gl.linkProgram(shaderProgram);
+          gl.useProgram(shaderProgram);
+        
+          const vertexPosition = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+          gl.enableVertexAttribArray(vertexPosition);
+        
+          // Draw the points
+          gl.bindBuffer(gl.ARRAY_BUFFER, pointVertexBuffer);
+          gl.vertexAttribPointer(vertexPosition, 2, gl.FLOAT, false, 0, 0);
+        
+          gl.drawArrays(gl.POINTS, 0, 3);
+          
+        
+        
+      
+    </script>
+</body>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=<device-width>, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="index.css">
+  </head>
+  <body>
+    <div class="main-content">
+    <canvas id="myCanvas" width="1080" height="920"></canvas>
+
+    <script>
+      //setup
+      var canvas = document.getElementById("myCanvas");
+      var ctx = canvas.getContext("2d");
+
+      // Create gradient
+      const grd = ctx.createLinearGradient(0, 0, 380, 180);
+      grd.addColorStop(0, "green");
+      grd.addColorStop(1, "gray");
+
+      // mặt trời
+      ctx.beginPath();
+      ctx.arc(230, 100, 50, 0, 2 * Math.PI);
+      ctx.fillStyle = 'red'; // Màu đỏ
+      ctx.fill();
+      ctx.closePath();
+
+      // Vẽ núi thứ 1
+      ctx.beginPath();
+      ctx.moveTo(50, 300);
+      ctx.lineTo(150, 100);
+      ctx.lineTo(250, 300);
+      ctx.closePath();
+      ctx.fillStyle = grd; 
+      ctx.fill();
+
+      // Vẽ núi thứ 2
+      ctx.beginPath();
+      ctx.moveTo(200, 300);
+      ctx.lineTo(300, 150);
+      ctx.lineTo(400, 300);
+      ctx.closePath();
+      ctx.fillStyle = grd; 
+      ctx.fill();
+
+      // Vẽ núi thứ 3
+      ctx.beginPath();
+      ctx.moveTo(350, 300);
+      ctx.lineTo(450, 200);
+      ctx.lineTo(550, 300);
+      ctx.closePath();
+      ctx.fillStyle = grd; 
+      ctx.fill();
+
+      // Vẽ Ngôi nhà
+      // Vẽ bức tường
+      ctx.fillStyle = 'lightblue'; // Màu xanh nhạt
+      ctx.fillRect(400, 400, 200, 150); // Tọa độ (x, y) và kích thước (width, height)
+
+      // Vẽ cửa ra vào
+      ctx.fillStyle = 'brown'; // Màu nâu
+      ctx.fillRect(475, 450, 50, 100);
+
+      // Vẽ mái nhà
+      ctx.beginPath();
+      ctx.moveTo(400, 400);
+      ctx.lineTo(600, 400);
+      ctx.lineTo(500, 300);
+      ctx.closePath();
+      ctx.fillStyle = 'red'; // Màu đỏ
+      ctx.fill();
+
+      // Vẽ cửa sổ
+      ctx.fillStyle = 'yellow'; // Màu vàng
+      ctx.fillRect(430, 420, 40, 40);
+      ctx.fillRect(530, 420, 40, 40);
+
+      // Vẽ thân cây (màu nâu)
+      ctx.fillStyle = 'brown';
+      ctx.fillRect(100, 450, 40, 100);
+
+      // Vẽ lá cây (màu xanh)
+      ctx.fillStyle = 'green';
+      ctx.beginPath();
+      ctx.moveTo(80, 450); // Đỉnh lá cây
+      ctx.lineTo(160, 450); // Đỉnh lá cây
+      ctx.lineTo(120, 350); // Đỉnh dưới của lá cây
+      ctx.closePath();
+      ctx.fill();
+
+      
+
+    </script>
+    </div>
+  </body>
+</html>
